@@ -1,0 +1,14 @@
+:root {
+  --bg: #0b1c2d;
+  --text: #ffffff;
+}
+body {
+  /* use user-provided homepage background if present */
+  background-image: url('../assets/homepage_background.jpg');
+  background-color: var(--bg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  color: var(--text);
+  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+}

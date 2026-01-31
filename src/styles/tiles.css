@@ -1,0 +1,18 @@
+.tile-grid {
+  display: flex;
+  gap: 16px;
+  padding: 120px 48px;
+  overflow-x: auto;
+}
+
+.tile {
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.large { width: 220px; height: 220px; }
+.wide { width: 460px; height: 220px; }
+.medium { width: 220px; height: 100px; }

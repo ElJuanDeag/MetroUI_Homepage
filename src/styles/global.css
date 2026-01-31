@@ -1,0 +1,20 @@
+/* Global box model */
+* {
+  box-sizing: border-box;
+}
+
+/* 🔑 Lock the page */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Page NEVER scrolls */
+}
+
+/* Typography & base theme */
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #121212;
+  color: #ffffff;
+}
