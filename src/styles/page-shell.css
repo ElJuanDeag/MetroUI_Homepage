@@ -9,6 +9,15 @@
   color: var(--text);
 }
 
+/* page boundary color (set via --page-color on the root .page-shell element) */
+.page-shell {
+  border-left: 8px solid var(--page-color, #0078D7);
+}
+
+.page-shell {
+  transition: background-color 320ms cubic-bezier(.22,.8,.2,1), border-left-color 320ms cubic-bezier(.22,.8,.2,1), color 320ms ease;
+}
+
 .page-shell-header {
   height: var(--ps-h);
   display: flex;
@@ -19,6 +28,19 @@
   border-bottom: 1px solid rgba(255,255,255,0.03);
   position: relative;
   z-index: 60;
+}
+
+/* animate header color to avoid abrupt changes during route transitions */
+.page-shell-header {
+  transition: background-color 320ms cubic-bezier(.22,.8,.2,1), color 320ms ease;
+}
+
+/* subtle tint for the body area using the page color */
+.page-shell-body {
+  padding: 24px;
+  flex: 1;
+  overflow: auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
 }
 
 .page-shell-nav {

@@ -1,5 +1,6 @@
 import React, { Suspense } from "react"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
+import { AnimatePresence } from "framer-motion"
 import TopBar from "./components/TopBar"
 import MetroGrid from "./components/metro/MetroGrid"
 import PageShell from "./components/PageShell"
@@ -17,27 +18,23 @@ const fileToSlug = (filePath: string) => {
   return slug
 }
 
-const App = () => {
+const InnerRoutes = () => {
+  const location = useLocation()
   return (
-    <BrowserRouter>
-      <div className="app-root">
-        <TopBar />
+    <div className="app-root">
+      <TopBar />
 
-        <Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
           {/* keep the MetroGrid as the root landing */}
           <Route path="/" element={<MetroGrid />} />
-
-          {/* profile pages are auto-registered via the pages glob */}
 
           {/* auto-register pages found in ./pages (excluding root index behaviour) */}
           {Object.keys(pages).map((p) => {
             const slug = fileToSlug(p)
-            // skip the root landing handled by MetroGrid
             if (slug === "/") return null
-            // use React.lazy for code-splitting
             const LazyPage = React.lazy(pages[p])
 
-            // derive a readable title from the file path
             const parts = p.replace(/^\.\/pages\/?/, "").replace(/\.tsx$/, "").split("/")
             if (parts[parts.length - 1] === "index") parts.pop()
             const title = parts.length === 0 ? "" : parts.map((s) => s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())).join(" / ")
@@ -47,8 +44,8 @@ const App = () => {
                 key={slug}
                 path={slug}
                 element={
-                  <Suspense fallback={<PageShell title={title}><div style={{ padding: 24 }}>Loading…</div></PageShell>}>
-                    <PageShell title={title}>
+                  <Suspense fallback={<PageShell title={title} path={slug}><div style={{ padding: 24 }}>Loading…</div></PageShell>}>
+                    <PageShell title={title} path={slug}>
                       <LazyPage />
                     </PageShell>
                   </Suspense>
@@ -57,10 +54,17 @@ const App = () => {
             )
           })}
 
-          {/* fallback: keep a simple catch-all that renders a friendly placeholder */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </div>
+      </AnimatePresence>
+    </div>
+  )
+}
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <InnerRoutes />
     </BrowserRouter>
   )
 }

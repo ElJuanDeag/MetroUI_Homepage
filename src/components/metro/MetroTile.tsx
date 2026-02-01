@@ -6,6 +6,7 @@ import {
   HiOutlineBeaker,
   HiOutlineNewspaper,
 } from "react-icons/hi2"
+import PageIcon from "../../data/pageIcons2"
 import { motion } from "framer-motion"
 
 type Props = {
@@ -63,7 +64,7 @@ const MetroTile = ({ tile, onOpen }: Props) => {
         }}
       >
         {/* Icon */}
-        {iconMap[tile.title] && (
+        {iconMap[tile.title] ? (
           <div
             className="metro-tile-icon"
             style={{
@@ -72,6 +73,16 @@ const MetroTile = ({ tile, onOpen }: Props) => {
             }}
           >
             {iconMap[tile.title]}
+          </div>
+        ) : (
+          <div
+            className="metro-tile-icon"
+            style={{
+              fontSize: "calc(var(--mu) * 0.55)",
+              lineHeight: 1,
+            }}
+          >
+            <PageIcon path={`/${tile.id}`} size={Math.max(18, Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mu') || '120') * 0.55)) || 20} />
           </div>
         )}
 

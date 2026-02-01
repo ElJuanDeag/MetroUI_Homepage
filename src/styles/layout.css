@@ -8,19 +8,22 @@
   background-size: cover, cover;
   background-repeat: no-repeat, no-repeat;
   background-position: center center, center top;
+  padding-top: 56px;
 }
 
 /* Top bar stays fixed */
 .top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 56px;
-  flex-shrink: 0;
-
-  padding: 0 20px;
   display: flex;
   align-items: center;
-
+  padding: 0 20px;
   background: #0078d7;
   color: white;
+  z-index: 9999;
 }
 
 .profile-button {
