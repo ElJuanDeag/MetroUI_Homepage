@@ -1,9 +1,8 @@
-import PageShell from "../components/PageShell";
-
 export default function Projects() {
   return (
-    <PageShell title="Projects">
+    <div style={{ padding: 24 }}>
+      <h1>Projects</h1>
       <p>Selected work, systems, experiments.</p>
-    </PageShell>
-  );
+    </div>
+  )
 }

@@ -7,6 +7,7 @@ import "./styles/global.css"
 import "./styles/layout.css"
 import "./styles/theme.css"
 import "./styles/metro.css"
+import "./styles/page-shell.css"
 
 // 🔒 GUARANTEED MU INITIALIZATION
 const initMU = () => {

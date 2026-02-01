@@ -3,7 +3,11 @@
   display: flex;
   flex-direction: column;
   overflow: hidden; /* page never scrolls */
-  background: radial-gradient(ellipse at top, #0b1f33, #06121f);
+  /* background image layered under the radial gradient so tiles remain readable */
+  background-image: url('/assets/homepage_background.jpg'), radial-gradient(ellipse at top, #0b1f33, #06121f);
+  background-size: cover, cover;
+  background-repeat: no-repeat, no-repeat;
+  background-position: center center, center top;
 }
 
 /* Top bar stays fixed */

@@ -6,6 +6,9 @@
   height: 70vh; /* 🔑 reduced tile area */
   width: 100%;
 
+  /* Ensure viewport is transparent so body background can show through */
+  background: transparent;
+
   /* clip tile surfaces to the viewport so the lower gap can't cover them */
   overflow: hidden;
   padding-left: calc(var(--mu) * 0.75);
@@ -28,9 +31,17 @@
   padding-bottom: 8px;
   /* reserve space for scrollbar and make it stable */
   scrollbar-gutter: stable both-edges;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.28) transparent;
+  /* hide native scrollbar — we'll provide a custom fixed scrollbar */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-color: transparent transparent;
   box-sizing: border-box;
+}
+
+/* Hide webkit scrollbar */
+.metro-scroll::-webkit-scrollbar {
+  display: none;
+  height: 0;
 }
 
 
@@ -124,18 +135,67 @@
    ================================ */
 
 .metro-scrollbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 12px; /* sit slightly above bottom */
   height: 12px;
-  flex-shrink: 0;
-
+  z-index: 900;
+  display: block;
   overflow-x: auto;
   overflow-y: hidden;
-
-  background: rgba(255, 255, 255, 0.05);
+  padding-left: calc(var(--mu) * 0.75); /* align with viewport content */
+  padding-right: 8px;
+  box-sizing: border-box;
+  background: linear-gradient(90deg, rgba(0,0,0,0.28), rgba(0,0,0,0.12));
+  border-radius: 10px;
+  backdrop-filter: blur(6px) saturate(120%);
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
 }
 
 .metro-scrollbar-inner {
   height: 12px;
   width: var(--scroll-width);
+}
+
+/* WebKit scrollbar styling for the fixed bar */
+.metro-scrollbar::-webkit-scrollbar {
+  height: 14px;
+}
+
+.metro-scrollbar::-webkit-scrollbar-track {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+
+.metro-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(3,169,244,0.12), inset 0 1px 0 rgba(255,255,255,0.12);
+  border: 2px solid rgba(0,0,0,0.12);
+}
+
+.metro-scrollbar:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+  background: linear-gradient(90deg, rgba(0,0,0,0.34), rgba(0,0,0,0.14));
+}
+
+.metro-scrollbar:hover::-webkit-scrollbar-thumb {
+  box-shadow: 0 4px 18px rgba(3,169,244,0.18), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+/* Firefox scrollbar color */
+.metro-scrollbar {
+  scrollbar-color: rgba(255,255,255,0.12) rgba(0,0,0,0.08);
+}
+
+/* Responsive: reduce height on very small screens */
+@media (max-width: 640px) {
+  .metro-scrollbar { bottom: 8px; height: 10px; }
+  .metro-scrollbar-inner { height: 10px; }
 }
 
 .metro-scroll::-webkit-scrollbar {

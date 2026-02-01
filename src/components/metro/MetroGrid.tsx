@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom"
 const MetroGrid = () => {
   const viewportRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
+  const [barInnerWidth, setBarInnerWidth] = useState(0)
   const [active, setActive] = useState<null | { tile: TileType; rect: DOMRect }>(null)
   const navigate = useNavigate()
 
@@ -27,6 +29,37 @@ const MetroGrid = () => {
       window.removeEventListener("resize", updateMU)
     }
   }, [])
+
+  // Sync the fixed bottom scrollbar with the scroll container
+  useLayoutEffect(() => {
+    const scroll = scrollRef.current
+    const bar = barRef.current
+    if (!scroll || !bar) return
+
+    const update = () => {
+      setBarInnerWidth(scroll.scrollWidth)
+      bar.scrollLeft = scroll.scrollLeft
+    }
+
+    const onScroll = () => {
+      if (bar) bar.scrollLeft = scroll.scrollLeft
+    }
+
+    const onBarScroll = () => {
+      if (scroll) scroll.scrollLeft = bar.scrollLeft
+    }
+
+    update()
+    scroll.addEventListener("scroll", onScroll)
+    bar.addEventListener("scroll", onBarScroll)
+    window.addEventListener("resize", update)
+
+    return () => {
+      scroll.removeEventListener("scroll", onScroll)
+      bar.removeEventListener("scroll", onBarScroll)
+      window.removeEventListener("resize", update)
+    }
+  }, [scrollRef, barRef])
 
   return (
     <div className="metro-viewport-wrapper">
@@ -112,7 +145,12 @@ const MetroGrid = () => {
         </AnimatePresence>
       </div>
 
-      <div className="metro-bottom-gap" />
+        {/* fixed bottom scrollbar synced with metro scroll */}
+        <div ref={barRef} className="metro-scrollbar" aria-hidden>
+          <div className="metro-scrollbar-inner" style={{ width: barInnerWidth }} />
+        </div>
+
+        <div className="metro-bottom-gap" />
     </div>
   )
 }
