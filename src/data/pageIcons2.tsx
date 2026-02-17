@@ -31,17 +31,23 @@ const map: Record<string, IconType> = {
 
 const defaultColor = "#0078D7"
 
+function normalizePath(path?: string) {
+  if (!path) return "/"
+  const trimmed = path.trim()
+  if (!trimmed) return "/"
+  return trimmed.startsWith("/") ? trimmed.toLowerCase() : `/${trimmed.toLowerCase()}`
+}
+
 function findTileColor(path?: string) {
-  if (!path) return defaultColor
-  const key = path.replace(/^\//, "").toLowerCase()
+  const key = normalizePath(path)
   for (const row of tileRows) {
     for (const group of row.groups) {
       for (const t of group.tiles) {
-        if (t.id.toLowerCase() === key) return t.color
+        if (normalizePath(t.slug) === key) return t.color
       }
     }
   }
-  if (key.startsWith("profile")) return "#444444"
+  if (key.startsWith("/profile")) return "#444444"
   return defaultColor
 }
 

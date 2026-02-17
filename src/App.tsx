@@ -44,7 +44,7 @@ const InnerRoutes = () => {
                 key={slug}
                 path={slug}
                 element={
-                  <Suspense fallback={<PageShell title={title} path={slug}><div style={{ padding: 24 }}>Loading…</div></PageShell>}>
+                  <Suspense fallback={<PageShell title={title} path={slug}><div style={{ padding: 24 }}>Loading...</div></PageShell>}>
                     <PageShell title={title} path={slug}>
                       <LazyPage />
                     </PageShell>
@@ -74,7 +74,7 @@ const App = () => {
 
 function NotFound(){
   return (
-    <PageShell>
+    <PageShell title="Not Found" path="/not-found">
       <div style={{ padding: 24 }}>
         <h1>Not Found</h1>
         <p>The page you're looking for doesn't exist.</p>

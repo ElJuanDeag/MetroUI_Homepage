@@ -2,7 +2,7 @@ export default function Beta(){
   return (
     <div style={{padding:24}}>
       <h1>Beta</h1>
-      <p>Placeholder page for Beta.</p>
+      <p>Beta releases, changelogs and feedback links.</p>
     </div>
   )
 }

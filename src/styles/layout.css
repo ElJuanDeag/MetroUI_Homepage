@@ -4,7 +4,9 @@
   flex-direction: column;
   overflow: hidden; /* page never scrolls */
   /* background image layered under the radial gradient so tiles remain readable */
-  background-image: url('/assets/homepage_background.jpg'), radial-gradient(ellipse at top, #0b1f33, #06121f);
+  background-image:
+    url("/assets/homepage_background.jpg"),
+    radial-gradient(ellipse at top, rgba(21, 55, 88, 0.85), var(--bg-deep));
   background-size: cover, cover;
   background-repeat: no-repeat, no-repeat;
   background-position: center center, center top;
@@ -21,9 +23,19 @@
   display: flex;
   align-items: center;
   padding: 0 20px;
-  background: #0078d7;
+  background: linear-gradient(90deg, rgba(0, 120, 215, 0.95), rgba(0, 179, 255, 0.85));
   color: white;
   z-index: 9999;
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px) saturate(120%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.top-bar-title {
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
 }
 
 .profile-button {
@@ -33,15 +45,25 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   color: white;
-  transition: background 150ms ease, transform 120ms ease;
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 150ms ease, transform 120ms ease, box-shadow 150ms ease;
 }
 
 .profile-button:hover {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.12);
   transform: translateY(-1px);
+}
+
+.profile-button:active {
+  transform: translateY(0);
+}
+
+.profile-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
 }
 
 /* Metro region wrapper */
@@ -49,7 +71,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* 🔑 anchor tiles to top */
+  justify-content: flex-start; /* anchor tiles to top */
   overflow: hidden;
 }
 
@@ -65,4 +87,14 @@
 .metro-bottom-gap {
   height: 5vh;
   flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .metro-top-gap {
+    height: 0;
+  }
+
+  .metro-bottom-gap {
+    height: 0;
+  }
 }

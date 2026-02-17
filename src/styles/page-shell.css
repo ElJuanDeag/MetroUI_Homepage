@@ -1,21 +1,37 @@
 :root {
-  --ps-h: 64px;
+  --ps-h: 54px;
 }
 
 .page-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--text);
+  background: transparent;
+  transition: background-color 320ms cubic-bezier(.22,.8,.2,1), color 320ms ease;
+  position: relative;
+}
+
+.page-shell-window {
+  position: absolute;
+  background: #0b1724;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
-  min-height: 100%;
-  color: var(--text);
+  overflow: hidden;
 }
 
-/* page boundary color (set via --page-color on the root .page-shell element) */
-.page-shell {
-  border-left: 8px solid var(--page-color, #0078D7);
-}
-
-.page-shell {
-  transition: background-color 320ms cubic-bezier(.22,.8,.2,1), border-left-color 320ms cubic-bezier(.22,.8,.2,1), color 320ms ease;
+.page-shell-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 }
 
 .page-shell-header {
@@ -23,79 +39,125 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 0 20px;
-  background: transparent;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;
   z-index: 60;
+  cursor: move;
+  user-select: none;
 }
-
-/* animate header color to avoid abrupt changes during route transitions */
-.page-shell-header {
-  transition: background-color 320ms cubic-bezier(.22,.8,.2,1), color 320ms ease;
-}
-
-/* subtle tint for the body area using the page color */
-.page-shell-body {
-  padding: 24px;
-  flex: 1;
-  overflow: auto;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
-}
-
-.page-shell-nav {
-  display: flex;
-  gap: 8px;
-}
-
-.ps-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.03);
-  color: rgba(255,255,255,0.9);
-  border: none;
-  cursor: pointer;
-  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
-}
-
-.ps-btn:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
-}
-
 
 .page-shell-title {
-  margin-left: 12px;
-  font-size: 1rem;
+  margin-left: 6px;
+  font-size: 0.85rem;
   font-weight: 600;
-  opacity: 0.95;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
 }
 
 .page-shell-controls {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(0,0,0,0.28);
-  padding: 6px;
-  border-radius: 10px;
-  backdrop-filter: blur(6px) saturate(120%);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  gap: 10px;
 }
 
-.page-shell-actions {
+.page-shell-window-dots {
+  display: none;
+}
+
+.page-shell-nav {
   display: flex;
+  gap: 6px;
+  background: transparent;
+}
+
+.ps-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  border-radius: 2px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  transition: background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.ps-btn.ps-btn-ghost {
+  pointer-events: none;
+}
+
+.ps-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+}
+
+.ps-btn:active {
+  transform: translateY(0);
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .page-shell-body {
-  padding: 24px;
+  padding: 28px;
   flex: 1;
   overflow: auto;
+  background: radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.04), transparent 50%);
+}
+
+.page-shell-resizer {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  opacity: 0.6;
+}
+
+.page-shell-resizer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-right: 2px solid rgba(255, 255, 255, 0.35);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+.page-shell-window--overlay {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .page-shell-window {
+    width: min(980px, 96vw);
+    height: min(78vh, 820px);
+  }
+}
+
+@media (max-width: 720px) {
+  .page-shell {
+    padding: 16px;
+  }
+
+  .page-shell-window {
+    width: 100%;
+    height: calc(100vh - 32px);
+  }
+
+  .page-shell-header {
+    padding: 0 12px;
+  }
+
+  .page-shell-title {
+    font-size: 0.85rem;
+  }
+
+  .page-shell-body {
+    padding: 20px;
+  }
 }

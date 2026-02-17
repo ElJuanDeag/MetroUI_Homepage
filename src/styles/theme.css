@@ -1,14 +1,14 @@
 :root {
   --bg: #0b1c2d;
+  --bg-deep: #06121f;
   --text: #ffffff;
-}
-body {
-  /* background-image moved to .app-root so it isn't covered by app containers */
-  background-image: none;
-  background-color: var(--bg);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  color: var(--text);
-  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+  --muted: rgba(255, 255, 255, 0.7);
+  --accent: #0078d7;
+  --accent-2: #00b3ff;
+  --surface: rgba(10, 20, 32, 0.65);
+  --surface-strong: rgba(9, 18, 30, 0.9);
+  --ring: rgba(0, 179, 255, 0.55);
+  --shadow-strong: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --radius: 12px;
 }

@@ -11,7 +11,8 @@ import { motion } from "framer-motion"
 
 type Props = {
   tile: Tile
-  onOpen?: (tile: Tile, rect: DOMRect) => void
+  iconSize: number
+  onOpen?: (tile: Tile) => void
 }
 
 const iconMap: Record<string, JSX.Element> = {
@@ -27,27 +28,24 @@ const tileVariant = {
   visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
 }
 
-const MetroTile = ({ tile, onOpen }: Props) => {
+const MetroTile = ({ tile, iconSize, onOpen }: Props) => {
   const { w, h } = tileSpan(tile.size)
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     if (!onOpen) return
-    const el = (e.currentTarget as HTMLDivElement).querySelector('.metro-tile-surface') as HTMLDivElement | null
-    const rect = el ? el.getBoundingClientRect() : (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-    onOpen(tile, rect)
+    onOpen(tile)
   }
 
   return (
-    <motion.div
+    <motion.button
       className="metro-tile"
       variants={tileVariant}
       style={{
         gridColumn: `span ${w}`,
         gridRow: `span ${h}`,
       }}
+      type="button"
       aria-label={tile.title}
-      role="group"
-      tabIndex={0}
       onClick={handleClick}
     >
       <div
@@ -68,7 +66,7 @@ const MetroTile = ({ tile, onOpen }: Props) => {
           <div
             className="metro-tile-icon"
             style={{
-              fontSize: "calc(var(--mu) * 0.55)",
+              fontSize: iconSize,
               lineHeight: 1,
             }}
           >
@@ -78,18 +76,18 @@ const MetroTile = ({ tile, onOpen }: Props) => {
           <div
             className="metro-tile-icon"
             style={{
-              fontSize: "calc(var(--mu) * 0.55)",
+              fontSize: iconSize,
               lineHeight: 1,
             }}
           >
-            <PageIcon path={`/${tile.id}`} size={Math.max(18, Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mu') || '120') * 0.55)) || 20} />
+            <PageIcon path={tile.slug} size={iconSize} />
           </div>
         )}
 
         {/* Title (Metro-style overlay) */}
         <span className="metro-tile-title">{tile.title}</span>
       </div>
-    </motion.div>
+    </motion.button>
   )
 }
 

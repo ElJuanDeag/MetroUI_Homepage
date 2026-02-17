@@ -1,9 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
 /* Global box model */
 * {
   box-sizing: border-box;
 }
 
-/* 🔑 Lock the page */
+/* Lock the page */
 html,
 body {
   margin: 0;
@@ -14,7 +16,13 @@ body {
 
 /* Typography & base theme */
 body {
-  font-family: "Segoe UI", system-ui, sans-serif;
-  background: #121212;
-  color: #ffffff;
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  letter-spacing: 0.1px;
+}
+
+code,
+pre {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
