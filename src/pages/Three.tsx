@@ -1,8 +1,13 @@
 export default function Three(){
   return (
     <div style={{padding:24}}>
-      <h1>Three</h1>
-      <p>Example content for Three with sample links or embeds.</p>
+      <h1>betelguese</h1>
+      <p>Early-stage personal repository.</p>
+      <p>
+        <a href="https://github.com/ElJuanDeag/betelguese" target="_blank" rel="noreferrer">
+          Open Repository
+        </a>
+      </p>
     </div>
   )
 }

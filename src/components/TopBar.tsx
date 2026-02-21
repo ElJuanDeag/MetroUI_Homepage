@@ -6,7 +6,7 @@ const TopBar = () => {
 
   return (
     <div className="top-bar">
-      <span className="top-bar-title">Metro UI</span>
+      <span className="top-bar-title">BRAJE.sh</span>
 
       <div
         className="profile-button"

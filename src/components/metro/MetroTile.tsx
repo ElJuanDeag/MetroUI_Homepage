@@ -85,7 +85,7 @@ const MetroTile = ({ tile, iconSize, onOpen }: Props) => {
         )}
 
         {/* Title (Metro-style overlay) */}
-        <span className="metro-tile-title">{tile.title}</span>
+        <span className={`metro-tile-title ${tile.title.length > 11 ? "is-long" : ""}`}>{tile.title}</span>
       </div>
     </motion.button>
   )

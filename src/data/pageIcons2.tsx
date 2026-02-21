@@ -1,6 +1,26 @@
 import React from "react"
 import { IconType } from "react-icons"
-import { FiHome, FiInfo, FiFileText, FiFolder, FiBarChart2, FiEdit, FiCpu, FiMoreHorizontal, FiMail, FiUsers, FiHash } from "react-icons/fi"
+import {
+  FiHome,
+  FiInfo,
+  FiFileText,
+  FiFolder,
+  FiBarChart2,
+  FiEdit,
+  FiCpu,
+  FiMoreHorizontal,
+  FiMail,
+  FiUsers,
+  FiYoutube,
+  FiFacebook,
+  FiInstagram,
+  FiLinkedin,
+  FiGithub,
+  FiServer,
+  FiBox,
+  FiGrid,
+  FiMusic,
+} from "react-icons/fi"
 import { tileRows } from "./tiles"
 
 const map: Record<string, IconType> = {
@@ -14,15 +34,15 @@ const map: Record<string, IconType> = {
   "/labs": FiCpu,
   "/misc": FiMoreHorizontal,
   "/more": FiMoreHorizontal,
-  "/alpha": FiHash,
-  "/beta": FiHash,
-  "/gamma": FiHash,
-  "/delta": FiHash,
-  "/one": FiHash,
-  "/two": FiHash,
-  "/three": FiHash,
-  "/four": FiHash,
-  "/five": FiHash,
+  "/alpha": FiYoutube,
+  "/beta": FiFacebook,
+  "/gamma": FiInstagram,
+  "/delta": FiLinkedin,
+  "/one": FiGithub,
+  "/two": FiServer,
+  "/three": FiBox,
+  "/four": FiGrid,
+  "/five": FiMusic,
   "/contact": FiMail,
   "/profile": FiUsers,
   "/profile/edit": FiEdit,
