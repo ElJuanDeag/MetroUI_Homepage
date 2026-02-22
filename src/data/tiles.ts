@@ -56,10 +56,10 @@ export const tileRows: TileRow[] = [
         id: "group-tools",
         columns: 3,
         tiles: [
-          { id: "alpha", title: "YouTube", slug: "/alpha", color: "#1ABC9C", size: "2x1" },
-          { id: "beta", title: "Facebook", slug: "/beta", color: "#2980B9", size: "1x1" },
-          { id: "gamma", title: "Instagram", slug: "/gamma", color: "#7F8C8D", size: "1x1" },
-          { id: "delta", title: "LinkedIn", slug: "/delta", color: "#C0392B", size: "2x2" },
+          { id: "alpha", title: "Clock", slug: "/alpha", color: "#1ABC9C", size: "2x1" },
+          { id: "beta", title: "Weather", slug: "/beta", color: "#2980B9", size: "1x1" },
+          { id: "gamma", title: "Day Progress", slug: "/gamma", color: "#7F8C8D", size: "1x1" },
+          { id: "delta", title: "System Info", slug: "/delta", color: "#C0392B", size: "2x2" },
         ],
       },
 

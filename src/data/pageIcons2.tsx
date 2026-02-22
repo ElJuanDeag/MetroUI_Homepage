@@ -1,4 +1,3 @@
-import React from "react"
 import { IconType } from "react-icons"
 import {
   FiHome,
@@ -11,15 +10,15 @@ import {
   FiMoreHorizontal,
   FiMail,
   FiUsers,
-  FiYoutube,
-  FiFacebook,
-  FiInstagram,
-  FiLinkedin,
   FiGithub,
   FiServer,
   FiBox,
   FiGrid,
   FiMusic,
+  FiClock,
+  FiCloud,
+  FiSun,
+  FiMonitor,
 } from "react-icons/fi"
 import { tileRows } from "./tiles"
 
@@ -34,10 +33,10 @@ const map: Record<string, IconType> = {
   "/labs": FiCpu,
   "/misc": FiMoreHorizontal,
   "/more": FiMoreHorizontal,
-  "/alpha": FiYoutube,
-  "/beta": FiFacebook,
-  "/gamma": FiInstagram,
-  "/delta": FiLinkedin,
+  "/alpha": FiClock,
+  "/beta": FiCloud,
+  "/gamma": FiSun,
+  "/delta": FiMonitor,
   "/one": FiGithub,
   "/two": FiServer,
   "/three": FiBox,
