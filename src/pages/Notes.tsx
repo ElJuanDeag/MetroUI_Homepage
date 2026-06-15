@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react"
+import { getAuthToken, optionalJson, requestJson } from "../lib/api"
 
 type TodoItem = {
   id: string
@@ -191,9 +192,41 @@ export default function Notes() {
   const [inboxDraft, setInboxDraft] = useState("")
   const [noteTodoDraft, setNoteTodoDraft] = useState("")
   const [mode, setMode] = useState<"edit" | "preview">("edit")
+  const [syncStatus, setSyncStatus] = useState<"local" | "loading" | "synced" | "error">(
+    getAuthToken() ? "loading" : "local"
+  )
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  }, [state])
+
+  useEffect(() => {
+    if (!getAuthToken()) return
+    const controller = new AbortController()
+    optionalJson<PersistedState>("/api/notes", {}, controller.signal).then((remoteState) => {
+      if (controller.signal.aborted) return
+      if (remoteState?.notes?.length) {
+        setState(remoteState)
+        setSyncStatus("synced")
+      } else {
+        setSyncStatus("local")
+      }
+    })
+    return () => controller.abort()
+  }, [])
+
+  useEffect(() => {
+    if (!getAuthToken()) return
+    const timer = window.setTimeout(() => {
+      requestJson<{ ok: boolean }>("/api/notes", {
+        method: "PUT",
+        body: JSON.stringify(state),
+      })
+        .then(() => setSyncStatus("synced"))
+        .catch(() => setSyncStatus("error"))
+    }, 700)
+
+    return () => window.clearTimeout(timer)
   }, [state])
 
   const filteredNotes = useMemo(() => {
@@ -343,7 +376,15 @@ export default function Notes() {
         <div>
           <p className="notes-kicker">Notes</p>
           <h1>Notes & Tasks</h1>
-          <p>Your notes are saved locally in this browser.</p>
+          <p>
+            {syncStatus === "synced"
+              ? "Notes are synced with the server."
+              : syncStatus === "loading"
+                ? "Loading notes from the server..."
+                : syncStatus === "error"
+                  ? "Server sync failed. Local cache is still saved."
+                  : "Your notes are saved locally in this browser."}
+          </p>
         </div>
         <button type="button" className="notes-btn" onClick={addNote}>
           + New Note

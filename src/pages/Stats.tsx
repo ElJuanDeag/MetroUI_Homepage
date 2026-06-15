@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { optionalJson } from "../lib/api"
 
 type DailyRow = {
   sum?: {
@@ -26,6 +27,12 @@ type StatsPayload = {
   daily: DailyRow[]
 }
 
+type HealthPayload = {
+  status: string
+  uptimeSeconds?: number
+  services?: Array<{ name: string; status: string; latencyMs?: number }>
+}
+
 const STATS_API_URL = "https://stats-api.braje.sh"
 
 const formatNumber = (value: number) => new Intl.NumberFormat().format(value)
@@ -46,6 +53,7 @@ const formatBytes = (bytes: number) => {
 
 export default function Stats() {
   const [data, setData] = useState<StatsPayload | null>(null)
+  const [health, setHealth] = useState<HealthPayload | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -57,17 +65,26 @@ export default function Stats() {
         setLoading(true)
         setError(null)
 
-        const response = await fetch(STATS_API_URL, {
-          method: "GET",
-          signal: controller.signal
-        })
+        const serverPayload = await optionalJson<StatsPayload>("/api/analytics", {}, controller.signal)
 
-        if (!response.ok) {
-          throw new Error(`API request failed (${response.status})`)
+        if (serverPayload) {
+          setData(serverPayload)
+        } else {
+          const response = await fetch(STATS_API_URL, {
+            method: "GET",
+            signal: controller.signal
+          })
+
+          if (!response.ok) {
+            throw new Error(`API request failed (${response.status})`)
+          }
+
+          const payload = (await response.json()) as StatsPayload
+          setData(payload)
         }
 
-        const payload = (await response.json()) as StatsPayload
-        setData(payload)
+        const healthPayload = await optionalJson<HealthPayload>("/api/health", {}, controller.signal)
+        setHealth(healthPayload)
       } catch (err) {
         if ((err as Error).name === "AbortError") return
         setError("Failed to load traffic data.")
@@ -104,9 +121,9 @@ export default function Stats() {
   return (
     <div className="stats-page">
       <section className="stats-hero">
-        <p className="stats-kicker">Cloudflare Analytics</p>
+        <p className="stats-kicker">Server Analytics</p>
         <h1 className="stats-title">Traffic Stats</h1>
-        <p className="stats-subtitle">Edge traffic for the last 7 days.</p>
+        <p className="stats-subtitle">Traffic and service health from the server.</p>
       </section>
 
       {loading && <p className="stats-status">Loading traffic data...</p>}
@@ -140,6 +157,32 @@ export default function Stats() {
               <p className="stats-card-value">{formatNumber(avgRequests)}</p>
             </div>
           </div>
+
+          {health && (
+            <div className="stats-table-wrap stats-health">
+              <div className="stats-table-title-row">
+                <h2>Service Health</h2>
+                <span>{health.status}</span>
+              </div>
+              <div className="stats-health-grid">
+                <div className="stats-card">
+                  <p className="stats-card-label">Server Uptime</p>
+                  <p className="stats-card-value">
+                    {health.uptimeSeconds ? `${Math.floor(health.uptimeSeconds / 3600)}h` : "Live"}
+                  </p>
+                </div>
+                {(health.services ?? []).map((service) => (
+                  <div className="stats-card" key={service.name}>
+                    <p className="stats-card-label">{service.name}</p>
+                    <p className="stats-card-value">{service.status}</p>
+                    {typeof service.latencyMs === "number" && (
+                      <p className="stats-range">{service.latencyMs}ms</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="stats-table-wrap">
             <div className="stats-table-title-row">

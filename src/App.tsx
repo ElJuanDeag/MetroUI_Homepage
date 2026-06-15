@@ -4,6 +4,9 @@ import { AnimatePresence } from "framer-motion"
 import TopBar from "./components/TopBar"
 import MetroGrid from "./components/metro/MetroGrid"
 import PageShell from "./components/PageShell"
+import ConsentBanner from "./components/ConsentBanner"
+import { usePageMeta } from "./hooks/usePageMeta"
+import AnalyticsTracker from "./components/AnalyticsTracker"
 
 // Dynamically import all page components under ./pages (Vite)
 const pages = (import.meta as any).glob("./pages/**/*.tsx") as Record<string, () => Promise<any>>
@@ -20,9 +23,16 @@ const fileToSlug = (filePath: string) => {
 
 const InnerRoutes = () => {
   const location = useLocation()
+  usePageMeta({
+    title: location.pathname === "/" ? "BRAJE.sh" : location.pathname.slice(1).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    description: "Brajesh Kumar's Metro-inspired portfolio, projects, notes, services, and contact hub.",
+    path: location.pathname,
+  })
+
   return (
     <div className="app-root">
       <TopBar />
+      <AnalyticsTracker />
 
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -57,6 +67,7 @@ const InnerRoutes = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
+      <ConsentBanner />
     </div>
   )
 }

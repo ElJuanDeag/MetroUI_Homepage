@@ -5,6 +5,7 @@ import MetroTile from "./MetroTile"
 import { motion } from "framer-motion"
 import MetroWindow from "./MetroWindow"
 import { complianceLinks } from "../ComplianceFooter"
+import { getAuthToken, requestJson, setAuthToken } from "../../lib/api"
 
 const pages = import.meta.glob("../../pages/**/*.tsx") as Record<string, () => Promise<any>>
 
@@ -33,6 +34,9 @@ const MetroGrid = () => {
   const [barInnerWidth, setBarInnerWidth] = useState(0)
   const [iconSize, setIconSize] = useState(20)
   const [windows, setWindows] = useState<WindowItem[]>([])
+  const [pendingTile, setPendingTile] = useState<TileType | null>(null)
+  const [authCode, setAuthCode] = useState("")
+  const [authStatus, setAuthStatus] = useState<"idle" | "checking" | "error">("idle")
   const zCounter = useRef(1)
 
   useLayoutEffect(() => {
@@ -78,7 +82,7 @@ const MetroGrid = () => {
     return { left: Math.max(12, left), top: Math.max(topBarHeight + 12, top), width, height }
   }
 
-  const openWindow = (tile: TileType) => {
+  const openTile = (tile: TileType) => {
     if (tile.externalUrl) {
       window.location.href = tile.externalUrl
       return
@@ -107,6 +111,37 @@ const MetroGrid = () => {
         },
       ]
     })
+  }
+
+  const openWindow = (tile: TileType) => {
+    if (tile.authRequired && !getAuthToken()) {
+      setPendingTile(tile)
+      setAuthStatus("idle")
+      return
+    }
+
+    openTile(tile)
+  }
+
+  const submitAuth = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!pendingTile) return
+
+    try {
+      setAuthStatus("checking")
+      const response = await requestJson<{ accessToken: string }>("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ code: authCode, scope: pendingTile.id }),
+      })
+      setAuthToken(response.accessToken)
+      setAuthCode("")
+      setAuthStatus("idle")
+      const unlockedTile = pendingTile
+      setPendingTile(null)
+      openTile(unlockedTile)
+    } catch {
+      setAuthStatus("error")
+    }
   }
 
   const updateWindowRect = (id: string, rect: WindowRect) => {
@@ -203,7 +238,7 @@ const MetroGrid = () => {
         <div className="metro-bottom-gap" />
 
         <footer className="metro-start-footer" aria-label="Legal and compliance links">
-          <span>© {new Date().getFullYear()} Brajesh Kumar</span>
+          <span>(c) {new Date().getFullYear()} Brajesh Kumar</span>
           <nav aria-label="Compliance">
             {complianceLinks.slice(0, 5).map((link) => (
               <Link key={link.to} to={link.to}>
@@ -235,6 +270,31 @@ const MetroGrid = () => {
             </MetroWindow>
           ))}
         </div>
+        {pendingTile && (
+          <div className="auth-overlay" role="dialog" aria-modal="true" aria-label="Private tile authentication">
+            <form className="auth-panel" onSubmit={submitAuth}>
+              <p className="auth-kicker">Private Tile</p>
+              <h2>{pendingTile.title}</h2>
+              <p>Enter your server access code to unlock private services.</p>
+              <input
+                type="password"
+                value={authCode}
+                onChange={(event) => setAuthCode(event.target.value)}
+                placeholder="Access code"
+                autoFocus
+              />
+              <div className="auth-actions">
+                <button type="button" onClick={() => setPendingTile(null)}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={authStatus === "checking"}>
+                  {authStatus === "checking" ? "Checking..." : "Unlock"}
+                </button>
+              </div>
+              {authStatus === "error" && <p className="auth-error">Access was not accepted by the server.</p>}
+            </form>
+          </div>
+        )}
     </div>
   )
 }

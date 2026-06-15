@@ -5,6 +5,7 @@ export type MetroTile = {
   title: string
   slug: string
   externalUrl?: string
+  authRequired?: boolean
   color: string
   size: TileSize
 }
@@ -70,7 +71,7 @@ export const tileRows: TileRow[] = [
         columns: 3,
         tiles: [
           { id: "one", title: "MetroUI_Homepage", slug: "/one", color: "#16A085", size: "1x1" },
-          { id: "two", title: "VPS", slug: "/two", color: "#27AE60", size: "1x1" },
+          { id: "two", title: "VPS", slug: "/two", authRequired: true, color: "#27AE60", size: "1x1" },
           { id: "three", title: "betelguese", slug: "/three", color: "#F39C12", size: "2x1" },
           { id: "four", title: "TextTT_Dash", slug: "/four", color: "#8E44AD", size: "1x1" },
           {
@@ -78,6 +79,7 @@ export const tileRows: TileRow[] = [
             title: "Jellyfin",
             slug: "/jellyfin",
             externalUrl: "https://jellyfin.braje.sh",
+            authRequired: true,
             color: "#34495E",
             size: "1x1",
           },
