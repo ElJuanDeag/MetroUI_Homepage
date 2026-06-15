@@ -4,6 +4,7 @@ export type MetroTile = {
   id: string
   title: string
   slug: string
+  externalUrl?: string
   color: string
   size: TileSize
 }
@@ -72,7 +73,14 @@ export const tileRows: TileRow[] = [
           { id: "two", title: "VPS", slug: "/two", color: "#27AE60", size: "1x1" },
           { id: "three", title: "betelguese", slug: "/three", color: "#F39C12", size: "2x1" },
           { id: "four", title: "TextTT_Dash", slug: "/four", color: "#8E44AD", size: "1x1" },
-          { id: "five", title: "AudioPaneer_v1", slug: "/five", color: "#34495E", size: "1x1" },
+          {
+            id: "five",
+            title: "Jellyfin",
+            slug: "/jellyfin",
+            externalUrl: "https://jellyfin.braje.sh",
+            color: "#34495E",
+            size: "1x1",
+          },
         ],
       },
     ],

@@ -77,6 +77,11 @@ const MetroGrid = () => {
   }
 
   const openWindow = (tile: TileType) => {
+    if (tile.externalUrl) {
+      window.location.href = tile.externalUrl
+      return
+    }
+
     setWindows((prev) => {
       const existing = prev.find((w) => w.slug === tile.slug)
       if (existing) {
