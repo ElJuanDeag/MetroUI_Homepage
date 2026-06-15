@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { FiChevronLeft, FiChevronRight, FiGrid, FiMaximize, FiMinimize } from "react-icons/fi"
 import PageIcon, { getColorForPath } from "../data/pageIcons2"
 import { motion } from "framer-motion"
+import ComplianceFooter from "./ComplianceFooter"
 
 type Props = {
   children: ReactNode
@@ -172,6 +173,7 @@ const PageShell = ({ children, title, path }: Props) => {
           transition={{ duration: 0.36, ease: "easeOut" }}
         >
           {children}
+          <ComplianceFooter />
         </motion.div>
         <div
           className="page-shell-resizer"

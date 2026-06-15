@@ -1,8 +1,10 @@
 import React, { Suspense, useLayoutEffect, useRef, useState } from "react"
+import { Link } from "react-router-dom"
 import { tileRows, MetroTile as TileType } from "../../data/tiles"
 import MetroTile from "./MetroTile"
 import { motion } from "framer-motion"
 import MetroWindow from "./MetroWindow"
+import { complianceLinks } from "../ComplianceFooter"
 
 const pages = import.meta.glob("../../pages/**/*.tsx") as Record<string, () => Promise<any>>
 
@@ -199,6 +201,17 @@ const MetroGrid = () => {
         </div>
 
         <div className="metro-bottom-gap" />
+
+        <footer className="metro-start-footer" aria-label="Legal and compliance links">
+          <span>© {new Date().getFullYear()} Brajesh Kumar</span>
+          <nav aria-label="Compliance">
+            {complianceLinks.slice(0, 5).map((link) => (
+              <Link key={link.to} to={link.to}>
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </footer>
 
         <div className="metro-window-stack">
           {windows.map((win) => (

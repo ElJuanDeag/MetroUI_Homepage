@@ -20,6 +20,7 @@ import {
   FiCloud,
   FiSun,
   FiMonitor,
+  FiShield,
 } from "react-icons/fi"
 import { tileRows } from "./tiles"
 
@@ -44,6 +45,11 @@ const map: Record<string, IconType> = {
   "/four": FiGrid,
   "/five": FiMusic,
   "/jellyfin": FiTv,
+  "/legal": FiFileText,
+  "/privacy": FiShield,
+  "/cookies": FiShield,
+  "/terms": FiFileText,
+  "/accessibility": FiInfo,
   "/contact": FiMail,
   "/profile": FiUsers,
   "/profile/edit": FiEdit,

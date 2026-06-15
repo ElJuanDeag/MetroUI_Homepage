@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from "react"
 import { FiMaximize, FiMinimize, FiX } from "react-icons/fi"
+import ComplianceFooter from "../ComplianceFooter"
 
 type Rect = { left: number; top: number; width: number; height: number }
 
@@ -117,7 +118,10 @@ const MetroWindow = ({ id, title, rect, z, onRectChange, onFocus, onClose, child
           </button>
         </div>
       </header>
-      <div className="metro-window-body">{children}</div>
+      <div className="metro-window-body">
+        {children}
+        <ComplianceFooter />
+      </div>
       <div
         className="metro-window-resizer"
         onPointerDown={(e) => {
