@@ -11,11 +11,11 @@ const suitColor = (suit: "spades" | "clubs" | "hearts" | "diamonds" | "joker") =
   suit === "hearts" || suit === "diamonds" ? "#cf263d" : "#1a2433"
 
 const suitGlyph = (suit: "spades" | "clubs" | "hearts" | "diamonds" | "joker") => {
-  if (suit === "spades") return "♠"
-  if (suit === "clubs") return "♣"
-  if (suit === "hearts") return "♥"
-  if (suit === "diamonds") return "♦"
-  return "★"
+  if (suit === "spades") return "\u2660"
+  if (suit === "clubs") return "\u2663"
+  if (suit === "hearts") return "\u2665"
+  if (suit === "diamonds") return "\u2666"
+  return "\u2605"
 }
 
 const HiddenCardSvg = () => (
@@ -34,8 +34,8 @@ const HiddenCardSvg = () => (
     <rect x="16" y="16" width="128" height="192" rx="11" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
     <rect x="24" y="24" width="112" height="176" rx="8" fill="url(#card-back-pattern)" />
     <circle cx="80" cy="112" r="26" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.18)" strokeWidth="2" />
-    <text x="80" y="120" textAnchor="middle" fontSize="26" fill="#eef7ff" fontFamily="Georgia, serif">
-      CABO
+    <text x="80" y="121" textAnchor="middle" fontSize="34" fill="#eef7ff" fontFamily="Georgia, serif">
+      {"\u2726"}
     </text>
   </svg>
 )
@@ -72,7 +72,7 @@ const VisibleCardSvg = ({ card }: { card: Extract<PublicCardView, { kind: "visib
             JOKER
           </text>
           <text y="24" textAnchor="middle" fontSize="38" fill="#cf263d" fontFamily="Georgia, serif">
-            ★
+            {"\u2605"}
           </text>
         </g>
       ) : (

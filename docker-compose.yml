@@ -8,6 +8,12 @@ services:
     restart: unless-stopped
     ports:
       - "${METRO_PORT:-3001}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   cabo-app:
     build:
@@ -20,3 +26,9 @@ services:
       PORT: 3002
     ports:
       - "${CABO_PORT:-3002}:3002"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3002"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

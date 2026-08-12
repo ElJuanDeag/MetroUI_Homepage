@@ -85,7 +85,7 @@ input {
 .summary-chip span,
 .self-status,
 .table-status {
-  color: #bccfbe;
+  color: var(--muted);
 }
 
 .stage-card,
@@ -197,7 +197,7 @@ label {
 
 .table-surface {
   position: relative;
-  min-height: 760px;
+  min-height: 900px;
   border-radius: 44px;
   overflow: hidden;
   background:
@@ -226,12 +226,18 @@ label {
   left: 50%;
   transform: translate(-50%, -52%);
   align-items: center;
+  justify-content: center;
+  width: min(420px, 38vw);
+  min-height: 250px;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .pile-stack {
   position: relative;
   width: 170px;
   height: 230px;
+  flex: 0 0 auto;
 }
 
 .card-stack-plates,
@@ -289,30 +295,31 @@ label {
 .table-seats {
   position: absolute;
   inset: 0;
+  z-index: 3;
 }
 
 .seat {
   position: absolute;
-  width: min(300px, 34vw);
+  left: var(--seat-x);
+  top: var(--seat-y);
+  transform: translate(-50%, -50%);
+  width: min(300px, 30vw);
   padding: 14px;
   border-radius: 28px;
-  background: rgba(7, 18, 14, 0.28);
+  background: rgba(7, 18, 14, 0.32);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition: box-shadow 220ms ease, background 220ms ease;
+  z-index: 3;
 }
 
 .seat.is-current-turn {
   box-shadow: 0 0 0 1px rgba(255, 217, 138, 0.28), 0 18px 36px rgba(0, 0, 0, 0.24);
+  z-index: 4;
 }
 
 .seat.is-cabo-caller .seat-header h3 {
   animation: cabo-pulse 800ms ease 2;
 }
-
-.seat-south { left: 50%; bottom: 24px; transform: translateX(-50%); }
-.seat-north { left: 50%; top: 22px; transform: translateX(-50%); }
-.seat-west { left: 22px; top: 50%; transform: translateY(-50%); }
-.seat-east { right: 22px; top: 50%; transform: translateY(-50%); }
 
 .seat-header {
   display: flex;
@@ -389,10 +396,12 @@ label {
 .self-zone {
   position: absolute;
   left: 50%;
-  bottom: 190px;
+  bottom: 112px;
   transform: translateX(-50%);
   flex-direction: column;
   align-items: center;
+  z-index: 5;
+  width: min(560px, calc(100% - 48px));
 }
 
 .self-status {
@@ -410,6 +419,7 @@ label {
   background: rgba(7, 18, 14, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.09);
   box-shadow: var(--shadow);
+  pointer-events: auto;
 }
 
 .action-bar .is-warn {
@@ -553,26 +563,17 @@ label {
 
 @media (max-width: 980px) {
   .table-surface {
-    min-height: 980px;
+    min-height: 1080px;
   }
 
   .table-center {
-    top: 44%;
+    top: 48%;
+    width: min(360px, calc(100% - 32px));
   }
 
   .seat {
-    width: min(280px, calc(100% - 36px));
+    width: min(270px, 34vw);
   }
-
-  .seat-west,
-  .seat-east {
-    top: auto;
-    bottom: 246px;
-    transform: none;
-  }
-
-  .seat-west { left: 18px; }
-  .seat-east { right: 18px; }
 }
 
 @media (max-width: 720px) {
@@ -595,13 +596,14 @@ label {
   }
 
   .table-surface {
-    min-height: 1140px;
+    min-height: 1240px;
     border-radius: 32px;
   }
 
   .table-center {
-    top: 42%;
+    top: 48%;
     gap: 24px;
+    width: calc(100% - 24px);
   }
 
   .pile-stack {
@@ -614,19 +616,16 @@ label {
   }
 
   .seat {
-    width: calc(100% - 24px);
-    left: 12px;
-    right: 12px;
-    transform: none;
+    width: min(260px, calc(100% - 32px));
   }
 
-  .seat-north { top: 16px; }
-  .seat-west { top: 196px; bottom: auto; }
-  .seat-east { top: 376px; bottom: auto; }
-  .seat-south { bottom: 18px; }
+  .seat-north { --seat-x: 50%; --seat-y: 14%; }
+  .seat-west { --seat-x: 50%; --seat-y: 33%; }
+  .seat-east { --seat-x: 50%; --seat-y: 51%; }
+  .seat-south { --seat-x: 50%; --seat-y: 78%; }
 
   .self-zone {
-    bottom: 214px;
+    bottom: 48px;
     width: calc(100% - 24px);
   }
 
