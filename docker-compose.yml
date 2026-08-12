@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: metro-runtime
     container_name: metro-website
     restart: unless-stopped
     ports:
@@ -10,12 +11,12 @@ services:
 
   cabo-app:
     build:
-      context: ./cabo
+      context: .
       dockerfile: Dockerfile
+      target: cabo-runtime
     container_name: cabo-app
     restart: unless-stopped
     environment:
       PORT: 3002
     ports:
       - "${CABO_PORT:-3002}:3002"
-
