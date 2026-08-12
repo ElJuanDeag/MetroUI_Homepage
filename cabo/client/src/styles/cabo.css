@@ -1,0 +1,196 @@
+:root {
+  color-scheme: dark;
+  --bg: #08131f;
+  --panel: rgba(10, 26, 42, 0.9);
+  --panel-2: rgba(17, 38, 58, 0.95);
+  --line: rgba(126, 189, 220, 0.24);
+  --text: #e9f6ff;
+  --muted: #90b7cf;
+  --accent: #ffb13b;
+  --accent-2: #3bd6b1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(59, 214, 177, 0.12), transparent 35%),
+    linear-gradient(180deg, #0a1724 0%, #08131f 100%);
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.cabo-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 56px;
+}
+
+.hero,
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.hero {
+  padding: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent-2);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.lede {
+  max-width: 60ch;
+  color: var(--muted);
+}
+
+.panel-grid,
+.player-grid,
+.table-row {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.panel-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.player-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.table-row {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.panel {
+  padding: 24px;
+}
+
+.panel-header,
+.game-header,
+.action-row,
+.settings-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-inline,
+.action-row {
+  flex-wrap: wrap;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+input,
+button,
+.card-slot,
+.card-face {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 12px 14px;
+}
+
+button {
+  background: linear-gradient(135deg, #174260, #0e2a40);
+}
+
+.inline-toggle {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.player-list {
+  display: grid;
+  gap: 10px;
+}
+
+.player-chip {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.card-slot,
+.card-face {
+  min-height: 86px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.is-actionable {
+  outline: 1px solid rgba(255, 177, 59, 0.35);
+}
+
+.pile {
+  display: grid;
+  gap: 12px;
+}
+
+.invite-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+.log-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.error-banner {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(179, 48, 48, 0.22);
+  border: 1px solid rgba(255, 123, 123, 0.35);
+}
+
+@media (max-width: 720px) {
+  .invite-panel,
+  .panel-header,
+  .game-header {
+    display: grid;
+  }
+}

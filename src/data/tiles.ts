@@ -83,6 +83,7 @@ export const tileRows: TileRow[] = [
             color: "#34495E",
             size: "1x1",
           },
+          { id: "cabo", title: "Cabo", slug: "/cabo", externalUrl: "https://play.braje.sh", color: "#B85C38", size: "1x1" },
         ],
       },
     ],
