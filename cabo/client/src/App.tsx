@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Landing from "./components/Landing"
 import Lobby from "./components/Lobby"
 import DrawPile from "./components/DrawPile"
@@ -6,26 +6,71 @@ import DiscardPile from "./components/DiscardPile"
 import PlayerGrid from "./components/PlayerGrid"
 import { useCaboSocket } from "./useCaboSocket"
 import type { CreateRoomResponse } from "./types"
+import ActionBar from "./components/ActionBar"
+import LogDrawer from "./components/LogDrawer"
 
-const initialRoomCode = new URLSearchParams(window.location.search).get("room")?.toUpperCase() || ""
+const initialRoomCode = new URLSearchParams(window.location.search).get("room")?.toUpperCase() || null
 
 const App = () => {
-  const [roomId, setRoomId] = useState<string | null>(initialRoomCode || null)
+  const [roomId, setRoomId] = useState<string | null>(initialRoomCode)
   const [playerName, setPlayerName] = useState<string | null>(null)
+  const [initialRoomStatus, setInitialRoomStatus] = useState<"idle" | "checking" | "valid" | "invalid">(initialRoomCode ? "checking" : "idle")
+  const [landingError, setLandingError] = useState<string | null>(null)
+  const [logOpen, setLogOpen] = useState(false)
   const { room, error, send } = useCaboSocket(roomId, playerName)
+
+  useEffect(() => {
+    if (!initialRoomCode || playerName) return
+
+    let cancelled = false
+    fetch(`/api/rooms/${initialRoomCode}`)
+      .then((response) => {
+        if (!response.ok) throw new Error("That room no longer exists.")
+        if (cancelled) return
+        setInitialRoomStatus("valid")
+      })
+      .catch(() => {
+        if (cancelled) return
+        setInitialRoomStatus("invalid")
+        setLandingError("That room no longer exists.")
+        setRoomId(null)
+        history.replaceState(null, "", window.location.pathname)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [playerName])
 
   const isLanding = !roomId || !playerName
   const title = useMemo(() => {
     if (!room) return "Cabo"
     if (room.phase === "lobby") return "Lobby"
     if (room.phase === "playing") return `Round ${room.round}`
-    return "Round over"
+    return room.phase === "match-end" ? "Match settled" : "Round over"
   }, [room])
+
+  const selfPlayer = room?.players.find((player) => player.id === room.selfPlayerId)
+  const isSelfTurn = Boolean(room && room.turnPlayerId === room.selfPlayerId)
+  const pendingCard = room?.pendingDraw?.card
+
+  if (initialRoomStatus === "checking" && !playerName) {
+    return (
+      <main className="cabo-shell loading-shell">
+        <section className="hero stage-card is-visible">
+          <p className="eyebrow">Invite</p>
+          <h1>Looking up room {initialRoomCode}</h1>
+          <p className="lede">Checking that the invite is still live before we show the join form.</p>
+        </section>
+      </main>
+    )
+  }
 
   if (isLanding) {
     return (
       <Landing
-        initialRoomCode={initialRoomCode}
+        initialRoomCode={initialRoomStatus === "valid" ? initialRoomCode : null}
+        initialRoomError={landingError}
         onCreateRoom={async (hostName, settings) => {
           const response = await fetch("/api/rooms", {
             method: "POST",
@@ -41,6 +86,7 @@ const App = () => {
         onJoinRoom={(nextRoomId, nextPlayerName) => {
           setPlayerName(nextPlayerName)
           setRoomId(nextRoomId)
+          setInitialRoomStatus("valid")
           history.replaceState(null, "", `?room=${nextRoomId}`)
         }}
       />
@@ -49,12 +95,15 @@ const App = () => {
 
   return (
     <main className="cabo-shell">
-      <header className="game-header">
+      <header className="game-header table-header">
         <div>
           <p className="eyebrow">Room {room?.roomId || roomId}</p>
           <h1>{title}</h1>
         </div>
-        {room?.turnPlayerId && <span>Turn: {room.players.find((player) => player.id === room.turnPlayerId)?.name}</span>}
+        <div className="table-status">
+          {room?.turnPlayerId && <span>Turn: {room.players.find((player) => player.id === room.turnPlayerId)?.name}</span>}
+          {room?.pendingPower && <span>Power: {room.pendingPower.type}</span>}
+        </div>
       </header>
 
       {error && <div className="error-banner">{error}</div>}
@@ -69,38 +118,57 @@ const App = () => {
 
       {room && room.phase !== "lobby" && (
         <>
-          <section className="table-row">
-            <DrawPile count={room.deckCount} onDraw={() => send({ type: "DRAW_FROM_DECK" })} />
-            <DiscardPile card={room.topDiscard} />
-            <div className="panel">
-              <p className="eyebrow">Actions</p>
-              <div className="action-row">
-                <button type="button" onClick={() => send({ type: "DRAW_FROM_DISCARD" })}>
-                  Take discard
-                </button>
-                <button type="button" onClick={() => send({ type: "DISCARD_DRAWN_CARD" })}>
-                  Discard draw
-                </button>
-                <button type="button" onClick={() => send({ type: "CALL_CABO" })}>
-                  Call Cabo
-                </button>
+          <section className={`table-stage phase-${room.phase}`}>
+            <div className="table-surface">
+              <div className="table-center">
+                <DrawPile count={room.deckCount} pendingCard={pendingCard} isActive={Boolean(room.pendingDraw?.source === "deck")} />
+                <DiscardPile card={room.topDiscard} />
+              </div>
+
+              <PlayerGrid
+                room={room}
+                onSwap={(index) => send({ type: "SWAP_DRAWN_CARD", cardIndex: index })}
+                onSlap={(index) => send({ type: "SLAP_DISCARD", cardIndex: index })}
+              />
+
+              <div className="self-zone">
+                <div className="self-status">
+                  <span>{selfPlayer?.name}</span>
+                  {room.roundResult && selfPlayer && <strong>+{room.roundResult.deltas[selfPlayer.id] ?? 0}</strong>}
+                </div>
+                <ActionBar
+                  canDraw={isSelfTurn && !room.pendingDraw}
+                  hasPendingDraw={Boolean(isSelfTurn && room.pendingDraw && room.pendingDraw.source === "deck")}
+                  canTakeDiscard={isSelfTurn && !room.pendingDraw}
+                  onDrawDeck={() => send({ type: "DRAW_FROM_DECK" })}
+                  onTakeDiscard={() => send({ type: "DRAW_FROM_DISCARD" })}
+                  onDiscardDraw={() => send({ type: "DISCARD_DRAWN_CARD" })}
+                  onCallCabo={() => send({ type: "CALL_CABO" })}
+                />
               </div>
             </div>
           </section>
 
-          <PlayerGrid
-            room={room}
-            onSwap={(index) => send({ type: "SWAP_DRAWN_CARD", cardIndex: index })}
-            onSlap={(index) => send({ type: "SLAP_DISCARD", cardIndex: index })}
-          />
+          <section className="round-reveal-strip">
+            {room.roundResult && (
+              <div className="panel round-summary">
+                <p className="eyebrow">{room.phase === "match-end" ? "Match end" : "Round reveal"}</p>
+                <h2>{room.roundResult.winnerIds.map((id) => room.players.find((player) => player.id === id)?.name || id).join(", ")} lead the board.</h2>
+                <div className="summary-grid">
+                  {room.players.map((player) => (
+                    <div className="summary-chip" key={player.id}>
+                      <strong>{player.name}</strong>
+                      <span>Round {room.roundResult?.totals[player.id] ?? 0}</span>
+                      <span>Total {player.score}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
 
-          <section className="panel log-panel">
-            <p className="eyebrow">Table log</p>
-            <ul>
-              {room.messageLog.map((message, index) => (
-                <li key={`${message}-${index}`}>{message}</li>
-              ))}
-            </ul>
+          <section className="floating-ui">
+            <LogDrawer messages={room.messageLog} open={logOpen} onToggle={() => setLogOpen((current) => !current)} />
           </section>
         </>
       )}

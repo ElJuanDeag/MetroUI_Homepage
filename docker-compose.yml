@@ -1,0 +1,21 @@
+services:
+  metro-website:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: metro-website
+    restart: unless-stopped
+    ports:
+      - "${METRO_PORT:-3001}:80"
+
+  cabo-app:
+    build:
+      context: ./cabo
+      dockerfile: Dockerfile
+    container_name: cabo-app
+    restart: unless-stopped
+    environment:
+      PORT: 3002
+    ports:
+      - "${CABO_PORT:-3002}:3002"
+

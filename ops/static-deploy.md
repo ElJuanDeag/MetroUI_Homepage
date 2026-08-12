@@ -84,3 +84,24 @@ Troubleshooting
 - If cloudflared reports ingress errors, confirm `config.yml` and credentials are on the phone.
 
 That's it - tell me if you want me to add the Actions workflow file or run a local build now.
+
+## Docker Compose (main site + Cabo)
+
+This repo now also includes a root `docker-compose.yml` so the portfolio site and the Cabo app can run together on the same server as separate containers:
+
+```bash
+docker compose up -d --build
+```
+
+Services:
+- `metro-website` -> serves the main Vite portfolio through nginx on container port `80` and host port `${METRO_PORT:-3001}`
+- `cabo-app` -> serves the Cabo frontend + WebSocket server on container/host port `${CABO_PORT:-3002}`
+
+Expected reverse proxy mapping:
+- main site hostname -> `metro-website:80` (or host port `3001`)
+- `play.braje.sh` -> `cabo-app:3002`
+
+Notes:
+- The two services can run at the same time because they use different container names and different ports.
+- If Nginx Proxy Manager is on the same Docker network, you can remove the host `ports:` mappings and instead attach these services to that shared network.
+- For the `play.braje.sh` proxy host, WebSocket support must be enabled.

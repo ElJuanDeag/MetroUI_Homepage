@@ -11,10 +11,10 @@ const Lobby = ({ room, onReady, onStart }: Props) => {
   const self = room.players.find((player) => player.id === room.selfPlayerId)
 
   return (
-    <div className="cabo-shell">
+    <div className="cabo-shell lobby-shell">
       <InvitePanel roomId={room.roomId} />
-      <section className="panel">
-        <div className="panel-header">
+      <section className="panel lobby-panel">
+        <div className="panel-header lobby-header">
           <div>
             <p className="eyebrow">Lobby</p>
             <h2>{room.players.length}/4 seated</h2>
@@ -26,7 +26,7 @@ const Lobby = ({ room, onReady, onStart }: Props) => {
         </div>
         <div className="player-list">
           {room.players.map((player) => (
-            <div className="player-chip" key={player.id}>
+            <div className={`player-chip ${player.ready ? "is-ready" : ""}`} key={player.id}>
               <strong>{player.name}</strong>
               <span>{player.connected ? "Connected" : "Reconnecting"}</span>
               <span>{player.ready ? "Ready" : "Not ready"}</span>
@@ -34,7 +34,7 @@ const Lobby = ({ room, onReady, onStart }: Props) => {
             </div>
           ))}
         </div>
-        <div className="action-row">
+        <div className="action-row lobby-actions">
           {!self?.isHost && (
             <button type="button" onClick={() => onReady(!self?.ready)}>
               {self?.ready ? "Unready" : "Ready up"}
