@@ -1,26 +1,34 @@
 import { Link } from "react-router-dom"
+import { FiGithub, FiLinkedin } from "react-icons/fi"
 
 const links = [
-  { label: "Legal Notice", to: "/legal" },
   { label: "Privacy", to: "/privacy" },
-  { label: "Cookies", to: "/cookies" },
-  { label: "Terms", to: "/terms" },
-  { label: "Accessibility", to: "/accessibility" },
   { label: "Contact", to: "/contact" },
+]
+
+const socialLinks = [
+  { label: "GitHub", href: "https://github.com/ElJuanDeag", icon: FiGithub },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/brajesh-kumar-6103401b4/", icon: FiLinkedin },
 ]
 
 export default function ComplianceFooter() {
   return (
-    <footer className="compliance-footer" aria-label="Legal and compliance links">
+    <footer className="compliance-footer" aria-label="Footer links">
       <div className="compliance-footer-copy">
         <span>© {new Date().getFullYear()} Brajesh Kumar</span>
-        <span>EU privacy and transparency information</span>
+        <span>Personal portfolio and project archive.</span>
       </div>
-      <nav className="compliance-footer-links" aria-label="Compliance">
+      <nav className="compliance-footer-links" aria-label="Footer">
         {links.map((link) => (
           <Link key={link.to} to={link.to}>
             {link.label}
           </Link>
+        ))}
+        {socialLinks.map(({ label, href, icon: Icon }) => (
+          <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label}>
+            <Icon size={16} />
+            <span>{label}</span>
+          </a>
         ))}
       </nav>
     </footer>

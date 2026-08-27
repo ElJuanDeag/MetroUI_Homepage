@@ -3,14 +3,22 @@
   display: flex;
   flex-direction: column;
   overflow: hidden; /* page never scrolls */
-  /* background image layered under the radial gradient so tiles remain readable */
-  background-image:
-    url("/assets/homepage_background.jpg"),
-    radial-gradient(ellipse at top, rgba(21, 55, 88, 0.85), var(--bg-deep));
-  background-size: cover, cover;
-  background-repeat: no-repeat, no-repeat;
-  background-position: center center, center top;
+  background:
+    radial-gradient(circle at top left, rgba(0, 120, 212, 0.14), transparent 34%),
+    linear-gradient(180deg, #1a1a2e 0%, #12182a 58%, #0f1220 100%);
   padding-top: 56px;
+  position: relative;
+}
+
+.app-root::before {
+  content: "";
+  position: absolute;
+  inset: 56px 0 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 28%),
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.025), transparent 22%);
+  opacity: 0.7;
 }
 
 /* Top bar stays fixed */
@@ -114,21 +122,22 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* anchor tiles to top */
+  justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 
 
 /* Breathing space above tiles */
 .metro-top-gap {
-  height: 5vh;
+  height: clamp(20px, 4vh, 44px);
   flex-shrink: 0;
 }
 
 /* Breathing space below tiles */
 .metro-bottom-gap {
-  height: 5vh;
+  height: clamp(84px, 10vh, 118px);
   flex-shrink: 0;
 }
 

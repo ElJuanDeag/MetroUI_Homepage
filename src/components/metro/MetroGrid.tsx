@@ -1,5 +1,6 @@
 import React, { Suspense, useLayoutEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
+import { FiGithub, FiLinkedin } from "react-icons/fi"
 import { tileRows, MetroTile as TileType } from "../../data/tiles"
 import MetroTile from "./MetroTile"
 import { motion } from "framer-motion"
@@ -238,13 +239,26 @@ const MetroGrid = () => {
         <div className="metro-bottom-gap" />
 
         <footer className="metro-start-footer" aria-label="Legal and compliance links">
-          <span>(c) {new Date().getFullYear()} Brajesh Kumar</span>
-          <nav aria-label="Compliance">
-            {complianceLinks.slice(0, 5).map((link) => (
+          <span>© {new Date().getFullYear()} Brajesh Kumar</span>
+          <nav aria-label="Footer">
+            {complianceLinks.map((link) => (
               <Link key={link.to} to={link.to}>
                 {link.label}
               </Link>
             ))}
+            <a href="https://github.com/ElJuanDeag" target="_blank" rel="noreferrer" aria-label="GitHub">
+              <FiGithub size={16} />
+              <span>GitHub</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/brajesh-kumar-6103401b4/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+            >
+              <FiLinkedin size={16} />
+              <span>LinkedIn</span>
+            </a>
           </nav>
         </footer>
 
