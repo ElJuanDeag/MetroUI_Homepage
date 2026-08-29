@@ -6,8 +6,8 @@ import DiscardPile from "./components/DiscardPile"
 import PlayerGrid from "./components/PlayerGrid"
 import { useCaboSocket } from "./useCaboSocket"
 import type { CreateRoomResponse } from "./types"
-import ActionBar from "./components/ActionBar"
 import LogDrawer from "./components/LogDrawer"
+import SelfHand from "./components/SelfHand"
 
 const initialRoomCode = new URLSearchParams(window.location.search).get("room")?.toUpperCase() || null
 
@@ -50,8 +50,6 @@ const App = () => {
     return room.phase === "match-end" ? "Match settled" : "Round over"
   }, [room])
 
-  const selfPlayer = room?.players.find((player) => player.id === room.selfPlayerId)
-  const isSelfTurn = Boolean(room && room.turnPlayerId === room.selfPlayerId)
   const pendingCard = room?.pendingDraw?.card
 
   if (initialRoomStatus === "checking" && !playerName) {
@@ -127,25 +125,17 @@ const App = () => {
 
               <PlayerGrid
                 room={room}
-                onSwap={(index) => send({ type: "SWAP_DRAWN_CARD", cardIndex: index })}
-                onSlap={(index) => send({ type: "SLAP_DISCARD", cardIndex: index })}
               />
 
-              <div className="self-zone">
-                <div className="self-status">
-                  <span>{selfPlayer?.name}</span>
-                  {room.roundResult && selfPlayer && <strong>+{room.roundResult.deltas[selfPlayer.id] ?? 0}</strong>}
-                </div>
-                <ActionBar
-                  canDraw={isSelfTurn && !room.pendingDraw}
-                  hasPendingDraw={Boolean(isSelfTurn && room.pendingDraw && room.pendingDraw.source === "deck")}
-                  canTakeDiscard={isSelfTurn && !room.pendingDraw}
-                  onDrawDeck={() => send({ type: "DRAW_FROM_DECK" })}
-                  onTakeDiscard={() => send({ type: "DRAW_FROM_DISCARD" })}
-                  onDiscardDraw={() => send({ type: "DISCARD_DRAWN_CARD" })}
-                  onCallCabo={() => send({ type: "CALL_CABO" })}
-                />
-              </div>
+              <SelfHand
+                room={room}
+                onSwap={(index) => send({ type: "SWAP_DRAWN_CARD", cardIndex: index })}
+                onSlap={(index) => send({ type: "SLAP_DISCARD", cardIndex: index })}
+                onDrawDeck={() => send({ type: "DRAW_FROM_DECK" })}
+                onTakeDiscard={() => send({ type: "DRAW_FROM_DISCARD" })}
+                onDiscardDraw={() => send({ type: "DISCARD_DRAWN_CARD" })}
+                onCallCabo={() => send({ type: "CALL_CABO" })}
+              />
             </div>
           </section>
 
