@@ -94,13 +94,15 @@ const drawCard = (room: RoomState): Card => {
 
 const startRound = (room: RoomState) => {
   const deck = shuffle(createDeck())
+  const now = Date.now()
   room.round += 1
-  room.phase = "playing"
+  room.phase = "peek"
   room.revealAll = false
   room.pendingDraw = undefined
   room.pendingPower = undefined
   room.caboCallerId = undefined
   room.finalTurnsRemaining = []
+  room.peekPhaseEndsAt = now + 6_000
   room.messageLog = [`Round ${room.round} started.`]
 
   room.players = room.players.map((player) => {
@@ -116,6 +118,8 @@ const startRound = (room: RoomState) => {
   room.deck = deck
   room.discard = [drawCard(room)]
   room.turnPlayerId = room.players[0]?.id
+  room.turnStartedAt = now
+  room.discardLandedAt = now
 }
 
 const addLog = (room: RoomState, message: string) => {
@@ -124,6 +128,7 @@ const addLog = (room: RoomState, message: string) => {
 
 const advanceTurn = (room: RoomState) => {
   if (!room.turnPlayerId) return
+  const now = Date.now()
   const currentId = room.turnPlayerId
   if (room.caboCallerId && room.finalTurnsRemaining.length > 0) {
     room.finalTurnsRemaining = room.finalTurnsRemaining.filter((id) => id !== currentId)
@@ -133,6 +138,14 @@ const advanceTurn = (room: RoomState) => {
     }
   }
   room.turnPlayerId = nextPlayerId(room, currentId)
+  room.turnStartedAt = now
+}
+
+const finishPeekPower = (room: RoomState) => {
+  const pending = room.pendingPower
+  if (!pending || (pending.type !== "peek-self" && pending.type !== "peek-opponent")) return
+  room.pendingPower = undefined
+  advanceTurn(room)
 }
 
 const finishRound = (room: RoomState) => {
@@ -145,6 +158,22 @@ const finishRound = (room: RoomState) => {
   applyRoundScores(room, result)
   addLog(room, `Round finished. Winner: ${result.winnerIds.join(", ")}`)
   room.phase = hasMatchWinner(room) ? "match-end" : "round-end"
+  room.peekPhaseEndsAt = undefined
+}
+
+export const endPeekPhase = (room: RoomState) => {
+  if (room.phase !== "peek") return room
+  room.phase = "playing"
+  room.peekPhaseEndsAt = undefined
+  addLog(room, "Memorize phase ended. Play begins.")
+  room.updatedAt = Date.now()
+  return room
+}
+
+export const finalizePeekPower = (room: RoomState) => {
+  finishPeekPower(room)
+  room.updatedAt = Date.now()
+  return room
 }
 
 const visibleCard = (player: PlayerState, index: number) => {
@@ -171,20 +200,18 @@ const resolvePowerCard = (room: RoomState, playerId: PlayerId, first?: TargetCar
     if (!first || first.playerId !== playerId) throw new Error("Choose one of your own cards to peek.")
     const card = visibleCard(actor, first.cardIndex)
     if (!actor.knownToSelf.includes(card.id)) actor.knownToSelf.push(card.id)
-    room.pendingPower = undefined
+    room.pendingPower = { ...pending, first }
     addLog(room, `${actor.name} peeked at one of their cards.`)
-    advanceTurn(room)
     return
   }
 
   if (pending.type === "peek-opponent") {
-    if (!first) throw new Error("Choose a card to peek.")
+    if (!first || first.playerId === playerId) throw new Error("Choose an opponent card to peek.")
     const target = playerById(room, first.playerId)
     const card = visibleCard(target, first.cardIndex)
     if (!actor.knownToSelf.includes(card.id)) actor.knownToSelf.push(card.id)
-    room.pendingPower = undefined
+    room.pendingPower = { ...pending, first }
     addLog(room, `${actor.name} peeked at an opponent card.`)
-    advanceTurn(room)
     return
   }
 
@@ -221,6 +248,15 @@ const resolvePowerCard = (room: RoomState, playerId: PlayerId, first?: TargetCar
 
 export function reduceGame(room: RoomState, action: GameAction): RoomState {
   room.updatedAt = Date.now()
+
+  const blockedDuringPeek =
+    room.phase === "peek" &&
+    action.type !== "SET_READY" &&
+    action.type !== "START_GAME"
+
+  if (blockedDuringPeek) {
+    throw new Error("Memorize your starting cards first.")
+  }
 
   if (action.type === "SET_READY") {
     const player = playerById(room, action.playerId)
@@ -274,6 +310,7 @@ export function reduceGame(room: RoomState, action: GameAction): RoomState {
     player.cards[action.cardIndex] = draw.card
     player.knownToSelf = player.knownToSelf.filter((id) => id !== replaced.id)
     room.discard.push(replaced)
+    room.discardLandedAt = Date.now()
     room.pendingDraw = undefined
     addLog(room, `${player.name} swapped a card into their grid.`)
     advanceTurn(room)
@@ -286,6 +323,7 @@ export function reduceGame(room: RoomState, action: GameAction): RoomState {
     if (!draw) throw new Error("No drawn card to discard.")
     if (draw.mustSwap) throw new Error("Discard pile draws must be swapped.")
     room.discard.push(draw.card)
+    room.discardLandedAt = Date.now()
     room.pendingDraw = undefined
     const power = draw.card.power
     if (power) {
@@ -314,6 +352,9 @@ export function reduceGame(room: RoomState, action: GameAction): RoomState {
 
   if (action.type === "SLAP_DISCARD") {
     if (!room.settings.slapEnabled) throw new Error("Slap is disabled for this room.")
+    if (!room.discardLandedAt || Date.now() - room.discardLandedAt > 2_000) {
+      throw new Error("Too late to slap that discard.")
+    }
     const player = playerById(room, action.playerId)
     const topDiscard = room.discard[room.discard.length - 1]
     const target = visibleCard(player, action.cardIndex)
@@ -321,6 +362,7 @@ export function reduceGame(room: RoomState, action: GameAction): RoomState {
       player.cards.splice(action.cardIndex, 1)
       player.knownToSelf = player.knownToSelf.filter((id) => id !== target.id)
       room.discard.push(target)
+      room.discardLandedAt = Date.now()
       addLog(room, `${player.name} slapped correctly and removed a card.`)
     } else {
       player.cards.push(drawCard(room))

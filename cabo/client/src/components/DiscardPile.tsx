@@ -1,8 +1,8 @@
-import type { PublicCardView } from "../../shared/game.js"
+import type { PublicCardView } from "../types"
 import CardVisual from "./CardVisual"
 
-const DiscardPile = ({ card }: { card?: PublicCardView }) => (
-  <div className="pile-stack discard-stack">
+const DiscardPile = ({ card, isSlapWindowActive }: { card?: PublicCardView; isSlapWindowActive: boolean }) => (
+  <div className={`pile-stack discard-stack ${isSlapWindowActive ? "is-slap-window" : ""}`}>
     <div className="discard-history" aria-hidden="true">
       <CardVisual className="history-card history-1" />
       <CardVisual className="history-card history-2" />

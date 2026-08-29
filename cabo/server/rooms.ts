@@ -1,7 +1,7 @@
 import type { CreateRoomRequest, CreateRoomResponse } from "../shared/messages.js"
 import type { ClientMessage, ServerMessage } from "../shared/messages.js"
 import type { RoomState, RoomView } from "../shared/game.js"
-import { createRoomState, reduceGame } from "./gameReducer.js"
+import { createRoomState, endPeekPhase, finalizePeekPower, reduceGame } from "./gameReducer.js"
 
 type Connection = {
   send: (message: ServerMessage) => void
@@ -11,6 +11,8 @@ type Session = {
   room: RoomState
   connections: Map<string, Connection>
   slapQueue: ClientMessage[]
+  peekTimeout?: ReturnType<typeof setTimeout>
+  powerTimeout?: ReturnType<typeof setTimeout>
 }
 
 const ROOM_TTL_MS = 1000 * 60 * 30
@@ -82,8 +84,25 @@ const cardForViewer = (viewerId: string | undefined, room: RoomState, ownerId: s
   const card = owner?.cards.find((entry) => entry.id === cardId)
   if (!card) return { kind: "hidden" as const, id: cardId }
 
+  const transientRevealTargets = (() => {
+    if (!room.pendingPower || viewerId !== room.pendingPower.actorId) return []
+    if (room.pendingPower.type === "blind-swap") {
+      return room.pendingPower.first ? [room.pendingPower.first] : []
+    }
+    if (room.pendingPower.type === "king") {
+      return [room.pendingPower.first].filter((target): target is NonNullable<typeof room.pendingPower.first> => Boolean(target))
+    }
+    return []
+  })()
+
+  const isTransientlyVisible = transientRevealTargets.some((target) => {
+    if (target.playerId !== ownerId) return false
+    return owner?.cards[target.cardIndex]?.id === cardId
+  })
+
   const visibleToViewer =
     room.revealAll ||
+    isTransientlyVisible ||
     viewerId === ownerId && owner?.knownToSelf.includes(cardId)
 
   if (!visibleToViewer) {
@@ -97,6 +116,64 @@ const cardForViewer = (viewerId: string | undefined, room: RoomState, ownerId: s
     suit: card.suit,
     value: card.value,
   }
+}
+
+const schedulePeekTransition = (roomId: string) => {
+  const session = rooms.get(roomId)
+  if (!session) return
+
+  if (session.peekTimeout) {
+    clearTimeout(session.peekTimeout)
+    session.peekTimeout = undefined
+  }
+
+  if (session.room.phase !== "peek" || !session.room.peekPhaseEndsAt) return
+
+  const delay = Math.max(0, session.room.peekPhaseEndsAt - Date.now())
+  session.peekTimeout = setTimeout(() => {
+    const activeSession = rooms.get(roomId)
+    if (!activeSession) return
+    endPeekPhase(activeSession.room)
+    broadcastRoom(roomId)
+    activeSession.peekTimeout = undefined
+  }, delay)
+  session.peekTimeout.unref()
+}
+
+const schedulePowerTransition = (roomId: string) => {
+  const session = rooms.get(roomId)
+  if (!session) return
+
+  if (session.powerTimeout) {
+    clearTimeout(session.powerTimeout)
+    session.powerTimeout = undefined
+  }
+
+  const pendingPower = session.room.pendingPower
+  if (!pendingPower || (pendingPower.type !== "peek-self" && pendingPower.type !== "peek-opponent") || !pendingPower.first) {
+    return
+  }
+
+  session.powerTimeout = setTimeout(() => {
+    const activeSession = rooms.get(roomId)
+    if (!activeSession) return
+    finalizePeekPower(activeSession.room)
+    broadcastRoom(roomId)
+    activeSession.powerTimeout = undefined
+  }, 2_500)
+  session.powerTimeout.unref()
+}
+
+const syncTimedState = (roomId: string) => {
+  const session = rooms.get(roomId)
+  if (!session) return
+
+  if (session.room.phase === "peek" && session.room.peekPhaseEndsAt && Date.now() >= session.room.peekPhaseEndsAt) {
+    endPeekPhase(session.room)
+  }
+
+  schedulePeekTransition(roomId)
+  schedulePowerTransition(roomId)
 }
 
 export const buildRoomView = (room: RoomState, viewerId?: string): RoomView => ({
@@ -148,6 +225,9 @@ export const buildRoomView = (room: RoomState, viewerId?: string): RoomView => (
   caboCallerId: room.caboCallerId,
   finalTurnsRemaining: room.finalTurnsRemaining,
   round: room.round,
+  peekPhaseEndsAt: room.peekPhaseEndsAt,
+  turnStartedAt: room.turnStartedAt,
+  discardLandedAt: room.discardLandedAt,
   messageLog: room.messageLog,
   roundResult: room.roundResult,
 })
@@ -172,6 +252,7 @@ export const detachConnection = (roomId: string, playerId: string) => {
 export const broadcastRoom = (roomId: string, includeTokens = false) => {
   const session = rooms.get(roomId)
   if (!session) return
+  syncTimedState(roomId)
   for (const player of session.room.players) {
     const connection = session.connections.get(player.id)
     if (!connection) continue
@@ -186,6 +267,7 @@ export const broadcastRoom = (roomId: string, includeTokens = false) => {
 export const applyClientMessage = (roomId: string, playerId: string, message: ClientMessage) => {
   const session = rooms.get(roomId)
   if (!session) throw new Error("Room not found.")
+  syncTimedState(roomId)
 
   if (message.type === "SLAP_DISCARD") {
     session.slapQueue.push(message)
@@ -241,6 +323,8 @@ export const sweepRooms = () => {
       session.connections.size === 0 &&
       now - session.room.updatedAt > ROOM_TTL_MS
     ) {
+      if (session.peekTimeout) clearTimeout(session.peekTimeout)
+      if (session.powerTimeout) clearTimeout(session.powerTimeout)
       rooms.delete(roomId)
     }
   }

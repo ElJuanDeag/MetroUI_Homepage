@@ -20,7 +20,7 @@ export type Rank =
 
 export type PowerType = "peek-self" | "peek-opponent" | "blind-swap" | "king"
 export type DrawSource = "deck" | "discard"
-export type Phase = "lobby" | "playing" | "round-end" | "match-end"
+export type Phase = "lobby" | "peek" | "playing" | "round-end" | "match-end"
 
 export type Card = {
   id: string
@@ -53,10 +53,12 @@ export type PendingPower =
   | {
       type: "peek-self"
       actorId: PlayerId
+      first?: TargetCard
     }
   | {
       type: "peek-opponent"
       actorId: PlayerId
+      first?: TargetCard
       targetPlayerId?: PlayerId
     }
   | {
@@ -103,6 +105,9 @@ export type RoomState = {
   finalTurnsRemaining: PlayerId[]
   round: number
   revealAll: boolean
+  peekPhaseEndsAt?: number
+  turnStartedAt?: number
+  discardLandedAt?: number
   roundResult?: RoundResult
   createdAt: number
   updatedAt: number
@@ -151,6 +156,9 @@ export type RoomView = {
   caboCallerId?: PlayerId
   finalTurnsRemaining: PlayerId[]
   round: number
+  peekPhaseEndsAt?: number
+  turnStartedAt?: number
+  discardLandedAt?: number
   messageLog: string[]
   roundResult?: RoundResult
 }

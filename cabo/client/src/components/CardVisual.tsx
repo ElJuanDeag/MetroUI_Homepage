@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import type { PublicCardView } from "../types"
 
 type Props = {
@@ -89,10 +90,22 @@ const VisibleCardSvg = ({ card }: { card: Extract<PublicCardView, { kind: "visib
   )
 }
 
-const CardVisual = ({ card, className = "", interactive = false, dimmed = false }: Props) => (
-  <div className={`playing-card ${interactive ? "is-interactive" : ""} ${dimmed ? "is-dimmed" : ""} ${className}`.trim()}>
-    {card?.kind === "visible" ? <VisibleCardSvg card={card} /> : <HiddenCardSvg />}
-  </div>
-)
+const CardVisual = ({ card, className = "", interactive = false, dimmed = false }: Props) => {
+  const [motionClass, setMotionClass] = useState("")
+  const cardId = card?.id
+
+  useEffect(() => {
+    if (!cardId) return
+    setMotionClass("is-card-changing")
+    const timeout = window.setTimeout(() => setMotionClass(""), 320)
+    return () => window.clearTimeout(timeout)
+  }, [cardId])
+
+  return (
+    <div className={`playing-card ${interactive ? "is-interactive" : ""} ${dimmed ? "is-dimmed" : ""} ${motionClass} ${className}`.trim()}>
+      {card?.kind === "visible" ? <VisibleCardSvg card={card} /> : <HiddenCardSvg />}
+    </div>
+  )
+}
 
 export default CardVisual

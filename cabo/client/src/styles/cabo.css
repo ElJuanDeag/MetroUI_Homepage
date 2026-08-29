@@ -294,6 +294,10 @@ label {
   animation: discard-land 260ms ease;
 }
 
+.discard-stack.is-slap-window .discard-top-card {
+  box-shadow: 0 0 0 2px rgba(255, 217, 138, 0.42), 0 0 26px rgba(255, 217, 138, 0.24);
+}
+
 .table-seats {
   position: relative;
   grid-row: 1 / span 2;
@@ -330,6 +334,11 @@ label {
   z-index: 4;
 }
 
+.seat.is-thinking .seat-header h3::after {
+  content: " ...";
+  animation: thinking-pulse 900ms ease-in-out infinite;
+}
+
 .seat.is-cabo-caller .seat-header h3 {
   animation: cabo-pulse 800ms ease 2;
 }
@@ -340,6 +349,17 @@ label {
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
+}
+
+.turn-meter {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background:
+    conic-gradient(rgba(255, 217, 138, 0.9) calc(var(--turn-progress, 0) * 1turn), rgba(255, 255, 255, 0.08) 0),
+    radial-gradient(circle at center, rgba(7, 18, 14, 0.95) 52%, transparent 54%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  flex: 0 0 auto;
 }
 
 .seat-header h3 {
@@ -370,6 +390,14 @@ label {
   padding: 0;
 }
 
+.card-slot.is-power-target {
+  opacity: 1;
+}
+
+.card-slot.is-power-locked {
+  opacity: 0.55;
+}
+
 .playing-card {
   width: 100%;
   max-width: 118px;
@@ -398,13 +426,22 @@ label {
   animation: swap-hint 260ms ease;
 }
 
-.is-round-reveal .card-slot {
-  animation: reveal-card 420ms ease both;
+.playing-card.is-power-target {
+  box-shadow: 0 0 0 2px rgba(255, 217, 138, 0.55), 0 0 24px rgba(255, 217, 138, 0.22);
 }
 
-.is-round-reveal .card-slot:nth-child(2) { animation-delay: 80ms; }
-.is-round-reveal .card-slot:nth-child(3) { animation-delay: 160ms; }
-.is-round-reveal .card-slot:nth-child(4) { animation-delay: 240ms; }
+.playing-card.is-card-changing {
+  animation: reveal-card 320ms ease, swap-hint 320ms ease;
+}
+
+.is-round-reveal .card-slot {
+  animation: reveal-card 420ms ease both;
+  animation-delay: var(--seat-reveal-delay, 0ms);
+}
+
+.is-round-reveal .card-slot:nth-child(2) { animation-delay: calc(var(--seat-reveal-delay, 0ms) + 80ms); }
+.is-round-reveal .card-slot:nth-child(3) { animation-delay: calc(var(--seat-reveal-delay, 0ms) + 160ms); }
+.is-round-reveal .card-slot:nth-child(4) { animation-delay: calc(var(--seat-reveal-delay, 0ms) + 240ms); }
 
 .self-hand {
   grid-row: 3;
@@ -421,6 +458,34 @@ label {
   border-radius: 999px;
   background: rgba(6, 12, 10, 0.54);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.power-instructions {
+  display: grid;
+  gap: 0.7rem;
+  justify-items: center;
+  text-align: center;
+  padding: 0.8rem 1rem;
+  border-radius: 20px;
+  background: rgba(6, 12, 10, 0.6);
+  border: 1px solid rgba(255, 217, 138, 0.16);
+  color: var(--accent-soft);
+}
+
+.power-decision {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.power-decision button {
+  min-width: 8rem;
+}
+
+.power-decision .is-armed {
+  border-color: rgba(255, 217, 138, 0.46);
+  box-shadow: 0 0 0 1px rgba(255, 217, 138, 0.22);
 }
 
 .action-bar {
@@ -449,6 +514,10 @@ label {
   display: grid;
   justify-items: end;
   gap: 10px;
+}
+
+.mute-toggle {
+  min-width: 132px;
 }
 
 .log-toggle {
@@ -571,6 +640,11 @@ label {
 @keyframes cabo-pulse {
   0%, 100% { color: var(--ink); }
   50% { color: var(--accent); }
+}
+
+@keyframes thinking-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
 }
 
 @media (max-width: 980px) {
